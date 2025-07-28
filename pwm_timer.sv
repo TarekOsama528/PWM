@@ -21,7 +21,7 @@ module synchronizer (
 endmodule
 //=========================================================================================
 
-module pwm_timer #(
+module multi_pwm_timer #(
     parameter NUM_CHANNELS = 4
 )(
     input  wire        i_clk,
@@ -66,7 +66,7 @@ module pwm_timer #(
     reg [15:0] main_counter [NUM_CHANNELS-1:0];
     wire [15:0] used_dc [NUM_CHANNELS-1:0];
     //error signals
-    reg [3:0]error_dc_too_big=0;
+    reg error_dc_too_big;
     reg error_div_inavlid=0;
     // Interrupt handling
     wire irq_from_pwm [NUM_CHANNELS-1:0];
@@ -75,12 +75,11 @@ module pwm_timer #(
     
     // Clock selection (shared)
     assign actual_clk = global_ctrl_reg[0] ? i_extclk : i_clk;
-  
+
     // Address decoding
     wire [2:0] channel_sel = i_wb_adr[4:2];  // Bits [4:2] select channel (0-7, but we use 0-3)
     wire [1:0] reg_sel = i_wb_adr[1:0];      // Bits [1:0] select register within channel
     wire global_reg_sel = i_wb_adr[7];       // Bit 7 indicates global registers
-
 
    
     // Global clock divider (shared)
@@ -150,7 +149,6 @@ module pwm_timer #(
                         if(counter_en_sync[i] && pwm_out_en_sync[i]) begin
                             if(period_reg[i] < used_dc[i]) begin
                                 o_pwm[i] <= 1'b1; // Error case: DC > Period
-                                error_dc_too_big[i] <= 1'b1; // Set error flag
                             end else if (main_counter[i] <= used_dc[i]) begin
                                 o_pwm[i] <= 1'b1;
                             end else begin

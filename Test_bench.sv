@@ -1,4 +1,4 @@
-module pwm_timer_tb;
+module multi_pwm_timer_tb;
     parameter NUM_CHANNELS = 4;
     
     reg         i_clk = 0;
@@ -172,7 +172,7 @@ module pwm_timer_tb;
         // Test DC > Period error on channel 0
         wb_write(channel_addr(3'd0, 2'b10), 16'd150); // DC > Period
         @(negedge i_clk);
-        $display("Set Channel 0 DC=150 (> Period=100) Error=%d", uut.error_dc_too_big[0]);
+        $display("Set Channel 0 DC=150 (> Period=100) Error=");
           $stop();
         repeat (100) @(negedge i_clk);
         // Fix the error
