@@ -1,4 +1,4 @@
-module pwm_timer_tb;
+module pwm_timer_tb_2;
     reg         i_clk = 0;
     reg         i_rst = 1;
     reg         i_wb_cyc = 0;

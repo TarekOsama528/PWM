@@ -25,6 +25,7 @@ R0
 R0
 R0
 R0
+R0
 !s11f MIXED_VERSIONS
 13
 !s112 1.1
@@ -34,15 +35,16 @@ R0
 cModel Technology
 Z1 dC:/Users/johns/Desktop/PWM
 T_opt
-!s110 1753709183
-VkT7Uloo3afcF7WQM3BhOe3
+!s110 1753710999
+V?kN0TliPSRcS>DAgG8L_>2
 Z2 04 12 4 work pwm_timer_tb fast 0
-=3-c475ab072dad-68877a7f-263-26e8
+=6-c475ab072dad-68878197-5b-26e8
 Z3 !s124 OEM100
 Z4 o-quiet -auto_acc_if_foreign -work work +acc
 Z5 tCvgOpt 0
 n@_opt
 Z6 OL;O;2021.1;73
+R1
 T_opt1
 !s110 1753705263
 V8b7:KXg2@Q1^kX?c>az<<0
@@ -54,6 +56,30 @@ R5
 n@_opt1
 R6
 R1
+vmulti_pwm_timer
+Z7 DXx6 sv_std 3 std 0 22 9oUSJO;AeEaW`l:M@^WG92
+!s110 1753710993
+!i10b 1
+!s100 OAmNMZUjfSlNJCW1Nd;Hd1
+IMkWL<dU?NVX:aL;K@RJWB2
+S1
+R1
+w1753710962
+Z8 8pwm_timer.sv
+Z9 Fpwm_timer.sv
+!i122 39
+L0 25 304
+Z10 VDg1SIo80bB@j0V0VzS_@n1
+Z11 OL;L;2021.1;73
+r1
+!s85 0
+31
+!s108 1753710993.000000
+!s107 pwm_timer.sv|
+!s90 -reportprogress|300|pwm_timer.sv|
+!i113 0
+Z12 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R5
 vpwm_time
 !s110 1753697460
 !i10b 1
@@ -65,8 +91,8 @@ w1753697456
 Fpwm.v
 !i122 2
 L0 1 187
-Z7 VDg1SIo80bB@j0V0VzS_@n1
-Z8 OL;L;2021.1;73
+R10
+R11
 r1
 !s85 0
 31
@@ -74,71 +100,77 @@ r1
 !s107 pwm.v|
 !s90 pwm.v|
 !i113 0
-Z9 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R12
 R5
 vpwm_timer
-Z10 !s110 1753709180
-!i10b 1
-!s100 HJCF@o>6>k9z@Y[KdCS_P0
-IZF@nQJ`3kC`[416[zFG6P3
-R1
-Z11 w1753709175
-Z12 8pwm_timer.v
-Z13 Fpwm_timer.v
-!i122 36
-L0 23 227
 R7
+Z13 !s110 1753724043
+!i10b 1
+!s100 PBYBX5g=__bam>QjOJCWS1
+ILI=hiAQG7b_gnjWGiRTiV1
+S1
+R1
+Z14 w1753724028
 R8
+R9
+!i122 42
+L0 24 223
+R10
+R11
 r1
 !s85 0
 31
-Z14 !s108 1753709180.000000
-Z15 !s107 pwm_timer.v|Test_bench.v|
-Z16 !s90 -reportprogress|300|Test_bench.v|pwm_timer.v|
+Z15 !s108 1753724043.000000
+!s107 Test_bench.sv|pwm_timer.sv|
+Z16 !s90 pwm_timer.sv|Test_bench.sv|
 !i113 0
-R9
+R12
 R5
 vpwm_timer_tb
-R10
-!i10b 1
-!s100 ggMP5]Tz=IAWddAB@oOR]1
-I5G0[`8D5>AY2M>?>0B]df1
-R1
-w1753705537
-8Test_bench.v
-FTest_bench.v
-!i122 36
-L0 1 166
 R7
-R8
+R13
+!i10b 1
+!s100 h2?Wf0n1kUQzbBE<9TNI_1
+I9Jk:]cM<4k9To[:c_3If?0
+S1
+R1
+w1753724038
+8Test_bench.sv
+FTest_bench.sv
+!i122 42
+L0 1 213
+R10
+R11
 r1
 !s85 0
 31
-R14
 R15
+Z17 !s107 Test_bench.sv|pwm_timer.sv|
 R16
 !i113 0
-R9
+R12
 R5
 vsynchronizer
-R10
-!i10b 1
-!s100 mhai6CAf@;[oI<JN>U`jN3
-I4L=UXXMFOnMPU2W`ocPZG0
-R1
-R11
-R12
-R13
-!i122 36
-L0 4 18
 R7
+R13
+!i10b 1
+!s100 UW24UPIAaeH7C=n=@X@=93
+INfAL7oJUE8lL<]k0zKZPL3
+S1
+R1
+R14
 R8
+R9
+!i122 42
+L0 4 18
+R10
+R11
 r1
 !s85 0
 31
-R14
 R15
+R17
 R16
 !i113 0
-R9
+R12
 R5

@@ -1,7 +1,7 @@
 //=========================================================================================
 // Two flip-flop synchronizer for clock domain crossing
 //================================================================================
-module synchronizer (
+module synchronizer_2 (
     input  wire clk,
     input  wire rst,
     input  wire async_in,
@@ -20,7 +20,7 @@ module synchronizer (
     end
 endmodule
 //================================================================================
-module pwm_timer
+module pwm_timer_2
 (   input  wire        i_clk,
     input  wire        i_rst,//active high
     input  wire        i_wb_cyc,
@@ -146,7 +146,7 @@ module pwm_timer
             o_wb_ack <= 1'b0; 
         end  
         
-    // Set interrupt flag when synchronized signal comes from PWM domain
+  
     if(irq_to_wb_sync) begin
       ctrl_reg[5] <= 1;   
     end
