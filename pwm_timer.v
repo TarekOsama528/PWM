@@ -42,11 +42,10 @@ module pwm_timer
     reg divided_clk_pulse;
     reg [15:0] main_counter;
     //extra feautures ideas
-
     //error signals
     reg error_dc_too_big=0;
     reg error_div_inavlid=0;
-
+    //internal control signals
 
    //Control signals_assignment_logic
     always @(*) begin
@@ -57,10 +56,10 @@ module pwm_timer
     pwm_out_en   = ctrl_reg[4];
     irq_flag     = ctrl_reg[5];
     ext_dc_sel   = ctrl_reg[6];
-    if ((main_counter>=used_dc && mode_sel==0))
-        counter_rst =1;
-    else 
-        counter_rst  = ctrl_reg[7];
+    // if ((main_counter>=used_dc && mode_sel==0))
+    //     counter_rst =1;
+    // else 
+    //     counter_rst  = ctrl_reg[7];
     end
 
     //Wishbone interface   
@@ -73,10 +72,10 @@ module pwm_timer
      o_wb_ack    <= 1'b0;     
     end
     else begin
-     o_wb_ack <= i_wb_cyc & i_wb_stb;
+     o_wb_ack <= i_wb_cyc && i_wb_stb;
         if (i_wb_cyc & i_wb_stb) begin
             if (i_wb_we) begin
-                case (i_wb_adr[3:1])
+                case (i_wb_adr[2:0])
                     3'b000: ctrl_reg    <= i_wb_data[7:0];
                     3'b001: divisor_reg <= i_wb_data;
                     3'b010: period_reg  <= i_wb_data;
@@ -84,7 +83,7 @@ module pwm_timer
                     default: ;
                 endcase
             end else begin
-                case (i_wb_adr[3:1])
+                case (i_wb_adr[2:0])
                     3'b000: o_wb_data <= {8'h00, ctrl_reg};
                     3'b001: o_wb_data <= divisor_reg;
                     3'b010: o_wb_data <= period_reg;
@@ -133,15 +132,17 @@ end
 
   //main_counter 
   always @(posedge actual_clk or posedge i_rst) begin
-    if(i_rst==1||counter_rst==1)begin
-        main_counter<=0;        
+  if(i_rst == 1 || counter_rst == 1) begin
+    main_counter <= 1;        
     end
-    else if(counter_en &&divided_clk_pulse)begin
-        if(main_counter <period_reg)begin
-            main_counter<=main_counter+1;    
+    else if((counter_en && divided_clk_pulse && !irq_flag) || 
+            (counter_en && divided_clk_pulse && continuous && mode_sel == 0)) begin
+        
+        if(main_counter >= period_reg) begin
+            main_counter <= 1;
         end
         else begin
-            main_counter<=0;    
+            main_counter <= main_counter + 1;    
         end
     end
   end
@@ -151,13 +152,17 @@ end
     if(i_rst)begin
        o_pwm<=0;
        //ctrl_reg[5] <=0; //clear interrupt flag 
+       counter_rst<=0;
        error_dc_too_big<=0;
+      
     end
     else begin
+      counter_rst<=ctrl_reg[7]; 
       if(mode_sel)begin//pwm mode
         if(counter_en && pwm_out_en)begin
+            
             error_dc_too_big<=0;    
-            if(period_reg>used_dc)  begin
+            if(period_reg<used_dc)  begin
                 o_pwm<=1;
                 error_dc_too_big<=1;  
             end else if (main_counter < used_dc)begin
@@ -165,21 +170,27 @@ end
             end else begin
                 o_pwm <= 1'b0;
             end
-                  
+
+      
 
       end
       else begin //timer
          o_pwm<=o_pwm; 
       end       
       end else begin
-            if (counter_en && divided_clk_pulse) begin
-                if (main_counter >= period_reg) begin
-                    o_pwm <= 1'b1;
-                    //set interrupt bit in its always block
-                end else begin
-                    o_pwm <= 1'b0;
-                end
+          
+            if(period_reg<used_dc)  begin
+                o_pwm<=1;
+                error_dc_too_big<=1; 
+            end    
+            else if (main_counter >= period_reg) begin
+                o_pwm <= 1'b1;
+                counter_rst<=1; //reset counter
+                //set interrupt bit and reset bits in their always block same condition
+            end else begin
+                o_pwm <= 1'b0;
             end
+            
                         
       end   
   end

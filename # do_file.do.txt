@@ -2489,4 +2489,5 @@ run
 # time=8920 clk=0 rst=0 ack=0 pwm=0 wb_data_out=0xxxxx i_DC=50 i_DC_valid=1
 # time=8925 clk=1 rst=0 ack=0 pwm=0 wb_data_out=0xxxxx i_DC=50 i_DC_valid=1
 add wave -position 23  sim:/pwm_timer_tb/uut/used_dc
-add wave -position 26  sim:/pwm_timer_tb/uut/mode_sel
+
+
