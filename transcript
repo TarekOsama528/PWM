@@ -1,0 +1,28 @@
+# vsim pwm_timer_tb 
+# Start time: 14:09:02 on Jul 28,2025
+# Loading work.pwm_timer_tb
+# Loading work.pwm_timer
+add wave -position insertpoint  \
+sim:/pwm_timer_tb/i_clk \
+sim:/pwm_timer_tb/i_DC \
+sim:/pwm_timer_tb/i_DC_valid \
+sim:/pwm_timer_tb/i_extclk \
+sim:/pwm_timer_tb/i_rst \
+sim:/pwm_timer_tb/i_wb_adr \
+sim:/pwm_timer_tb/i_wb_cyc \
+sim:/pwm_timer_tb/i_wb_data \
+sim:/pwm_timer_tb/i_wb_stb \
+sim:/pwm_timer_tb/i_wb_we \
+sim:/pwm_timer_tb/o_pwm \
+sim:/pwm_timer_tb/o_wb_ack \
+sim:/pwm_timer_tb/o_wb_data
+run -all
+# Starting simulation...
+# Observing PWM output...
+# Observing PWM output with external duty cycle...
+# Simulation finished.
+# ** Note: $stop    : Test_bench.v(149)
+#    Time: 5165 ps  Iteration: 1  Instance: /pwm_timer_tb
+# Break in Module pwm_timer_tb at Test_bench.v line 149
+# End time: 14:09:33 on Jul 28,2025, Elapsed time: 0:00:31
+# Errors: 0, Warnings: 0
