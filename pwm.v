@@ -1,4 +1,4 @@
-module pwm_time
+module pwm_timer
 (   input  wire        i_clk,
     input  wire        i_rst,//active high
     input  wire        i_wb_cyc,
@@ -64,7 +64,7 @@ module pwm_time
     end
 
     //Wishbone interface   
-    always @(posedge i_clk or negedge i_rst) begin
+    always @(posedge i_clk or posedge i_rst) begin
     if(i_rst) begin
      ctrl_reg    <= 8'h00;
      divisor_reg <= 16'h0001;
@@ -104,7 +104,7 @@ module pwm_time
     end
 end
   //pwm_divider
-  always @(posedge actual_clk or negedge i_rst) begin
+  always @(posedge actual_clk or posedge i_rst) begin
   if(i_rst)begin
    div_counter <=0;
    divided_clk_pulse <= 1'b0;     
@@ -132,7 +132,7 @@ end
   end  
 
   //main_counter 
-  always @(posedge actual_clk or negedge i_rst) begin
+  always @(posedge actual_clk or posedge i_rst) begin
     if(i_rst==1||counter_rst==1)begin
         main_counter<=0;        
     end
@@ -147,7 +147,7 @@ end
   end
 
   //pwm out logic
- always @(posedge actual_clk or negedge i_rst) begin
+ always @(posedge actual_clk or posedge i_rst) begin
     if(i_rst)begin
        o_pwm<=0;
        //ctrl_reg[5] <=0; //clear interrupt flag 
