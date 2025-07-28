@@ -20,7 +20,6 @@ module synchronizer (
     end
 endmodule
 //================================================================================
-
 module pwm_timer
 (   input  wire        i_clk,
     input  wire        i_rst,//active high
@@ -42,6 +41,16 @@ module pwm_timer
     reg [15:0] period_reg;
     reg [15:0] dc_reg;
     
+    // Synchronized control signals for PWM domain
+    wire clk_sel_sync;           
+    wire mode_sel_sync;          
+    wire counter_en_sync;        
+    wire continuous_sync;        
+    wire pwm_out_en_sync;        
+    wire ext_dc_sel_sync;        
+    wire counter_rst_sync;       
+    
+    // Local control signals (combinational from ctrl_reg)
     reg clk_sel;           // 0 = wb_clk, 1 = ext_clk
     reg mode_sel;          // 0 = timer, 1 = PWM
     reg counter_en;        // 0 = stop, 1 = start
@@ -51,10 +60,9 @@ module pwm_timer
     reg ext_dc_sel;        // 0 = DC_reg, 1 = i_DC
     reg counter_rst;       // Counter reset
 
-
     //DC register
     wire [15:0] used_dc;
-    assign used_dc = (ext_dc_sel)? i_DC : dc_reg;
+    assign used_dc = (ext_dc_sel_sync)? i_DC : dc_reg;
 
     // internal clks
     wire   actual_clk;
@@ -71,6 +79,11 @@ module pwm_timer
     //internal control signals
     reg prv_mode_sel = 1;
     reg set_irq_flag =0;
+    
+    // Interrupt flag from PWM domain to Wishbone domain
+    wire irq_from_pwm;
+    wire irq_to_wb_sync;
+    
    //Control signals_assignment_logic
     always @(*) begin
     clk_sel      = ctrl_reg[0];
@@ -80,11 +93,20 @@ module pwm_timer
     pwm_out_en   = ctrl_reg[4];
     irq_flag     = ctrl_reg[5];
     ext_dc_sel   = ctrl_reg[6];
-    // if ((main_counter>=used_dc && mode_sel==0))
-    //     counter_rst =1;
-    // else 
-    //     counter_rst  = ctrl_reg[7];
+    
     end
+
+    // Synchronizers for control signals going to PWM domain
+    synchronizer sync_clk_sel    (.clk(actual_clk), .rst(i_rst), .async_in(clk_sel),    .sync_out(clk_sel_sync));
+    synchronizer sync_mode_sel   (.clk(actual_clk), .rst(i_rst), .async_in(mode_sel),   .sync_out(mode_sel_sync));
+    synchronizer sync_counter_en (.clk(actual_clk), .rst(i_rst), .async_in(counter_en), .sync_out(counter_en_sync));
+    synchronizer sync_continuous (.clk(actual_clk), .rst(i_rst), .async_in(continuous), .sync_out(continuous_sync));
+    synchronizer sync_pwm_out_en (.clk(actual_clk), .rst(i_rst), .async_in(pwm_out_en), .sync_out(pwm_out_en_sync));
+    synchronizer sync_ext_dc_sel (.clk(actual_clk), .rst(i_rst), .async_in(ext_dc_sel), .sync_out(ext_dc_sel_sync));
+    synchronizer sync_counter_rst(.clk(actual_clk), .rst(i_rst), .async_in(counter_rst),.sync_out(counter_rst_sync));
+    
+    // Synchronizer for interrupt flag going back to Wishbone domain
+    synchronizer sync_irq_to_wb  (.clk(i_clk), .rst(i_rst), .async_in(irq_from_pwm), .sync_out(irq_to_wb_sync));
 
     //Wishbone interface   
     always @(posedge i_clk or posedge i_rst) begin
@@ -100,7 +122,12 @@ module pwm_timer
         if (i_wb_cyc & i_wb_stb) begin
             if (i_wb_we) begin
                 case (i_wb_adr[2:0])
-                    3'b000: ctrl_reg    <= i_wb_data[7:0];
+                    3'b000: begin
+                        ctrl_reg <= i_wb_data[7:0];
+                        // Clear interrupt flag when bit 5 is written with 0
+                        if (i_wb_data[5] == 1'b0) 
+                            ctrl_reg[5] <= 1'b0;
+                    end
                     3'b001: divisor_reg <= i_wb_data;
                     3'b010: period_reg  <= i_wb_data;
                     3'b011: dc_reg      <= i_wb_data;
@@ -118,11 +145,10 @@ module pwm_timer
         end else begin
             o_wb_ack <= 1'b0; 
         end  
-    if(set_irq_flag) begin
-      ctrl_reg[5]<=1;   
-    end
-    else begin
-      ctrl_reg[5]<=ctrl_reg[5];  
+        
+    // Set interrupt flag when synchronized signal comes from PWM domain
+    if(irq_to_wb_sync) begin
+      ctrl_reg[5] <= 1;   
     end
     end
 end
@@ -156,11 +182,11 @@ end
 
   //main_counter 
   always @(posedge actual_clk or posedge i_rst) begin
-  if(i_rst == 1 || counter_rst == 1) begin
+  if(i_rst == 1 || counter_rst_sync == 1) begin
     main_counter <= 1;        
     end
-    else if((counter_en && divided_clk_pulse && !irq_flag) || 
-            (counter_en && divided_clk_pulse && continuous && mode_sel == 0)) begin
+    else if((counter_en_sync && divided_clk_pulse && !irq_flag) || 
+            (counter_en_sync && divided_clk_pulse && continuous_sync && mode_sel_sync == 0)) begin
         
         if(main_counter >= period_reg) begin
             main_counter <= 1;
@@ -171,20 +197,22 @@ end
     end
   end
 
-  //pwm out logic
+  // PWM output logic with interrupt generation
+  reg irq_from_pwm_reg;
+  assign irq_from_pwm = irq_from_pwm_reg;
+  
  always @(posedge actual_clk or posedge i_rst) begin
     if(i_rst)begin
        o_pwm<=0;
-       //ctrl_reg[5] <=0; //clear interrupt flag 
-       counter_rst<=0;
        error_dc_too_big<=0;
-        set_irq_flag <=0;
+       irq_from_pwm_reg <= 0;
     end
     else begin
-      counter_rst<=ctrl_reg[7]; 
-      prv_mode_sel<= mode_sel; //store previous mode_sel
-      if(mode_sel)begin//pwm mode
-        if(counter_en && pwm_out_en)begin
+      prv_mode_sel<= mode_sel_sync; //store previous mode_sel
+      counter_rst  <= ctrl_reg[7];
+      
+      if(mode_sel_sync)begin//pwm mode
+        if(counter_en_sync && pwm_out_en_sync)begin
             
             error_dc_too_big<=0;    
             if(period_reg<used_dc)  begin
@@ -196,16 +224,13 @@ end
                 o_pwm <= 1'b0;
             end
 
-      
-
-      end
-      else begin //timer
+        end
+        else begin //timer mode disabled in pwm mode
          o_pwm<=o_pwm; 
-      end       
-      end else begin
-             if(prv_mode_sel && !mode_sel) begin // mode changed from pwm to timer
+        end       
+      end else begin // Timer mode
+             if(prv_mode_sel && !mode_sel_sync) begin // mode changed from pwm to timer
                 o_pwm <= 0;
-                counter_rst <= 1; // reset counter when switching from PWM to timer
              end
             else if(period_reg<used_dc)  begin
                 o_pwm<=1;
@@ -213,15 +238,12 @@ end
             end    
             else if (main_counter >= period_reg) begin
                 o_pwm <= 1'b1;
-                counter_rst<=1; //reset counter
-                set_irq_flag <= 1; // set interrupt flag
-                //set interrupt bit and reset bits in their always block same condition
+                irq_from_pwm_reg <= 1'b1; // Generate interrupt pulse
+                counter_rst <= 1'b1;
             end else begin
                 o_pwm <= 1'b0;
-            end
-            
-                        
+            end         
       end   
   end
  end  
-endmodule 
+endmodule

@@ -16,6 +16,15 @@ R0
 R0
 R0
 R0
+R0
+R0
+R0
+R0
+R0
+R0
+R0
+R0
+R0
 !s11f MIXED_VERSIONS
 13
 !s112 1.1
@@ -25,10 +34,10 @@ R0
 cModel Technology
 Z1 dC:/Users/johns/Desktop/PWM
 T_opt
-!s110 1753706646
-Vn6T2;V3zTGz]^<C<LY2Pg2
+!s110 1753709183
+VkT7Uloo3afcF7WQM3BhOe3
 Z2 04 12 4 work pwm_timer_tb fast 0
-=21-c475ab072dad-68877095-39e-327c
+=3-c475ab072dad-68877a7f-263-26e8
 Z3 !s124 OEM100
 Z4 o-quiet -auto_acc_if_foreign -work work +acc
 Z5 tCvgOpt 0
@@ -68,24 +77,24 @@ r1
 Z9 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
 R5
 vpwm_timer
-Z10 !s110 1753706641
+Z10 !s110 1753709180
 !i10b 1
-!s100 geH_JInQCBBiEGRaLi;Pc0
-I=3Z@0_21A=NYkWeAfBU5l3
+!s100 HJCF@o>6>k9z@Y[KdCS_P0
+IZF@nQJ`3kC`[416[zFG6P3
 R1
-w1753706626
-8pwm_timer.v
-Fpwm_timer.v
-!i122 21
-L0 1 204
+Z11 w1753709175
+Z12 8pwm_timer.v
+Z13 Fpwm_timer.v
+!i122 36
+L0 23 227
 R7
 R8
 r1
 !s85 0
 31
-Z11 !s108 1753706641.000000
-Z12 !s107 pwm_timer.v|Test_bench.v|
-Z13 !s90 -reportprogress|300|Test_bench.v|pwm_timer.v|
+Z14 !s108 1753709180.000000
+Z15 !s107 pwm_timer.v|Test_bench.v|
+Z16 !s90 -reportprogress|300|Test_bench.v|pwm_timer.v|
 !i113 0
 R9
 R5
@@ -98,16 +107,38 @@ R1
 w1753705537
 8Test_bench.v
 FTest_bench.v
-!i122 21
+!i122 36
 L0 1 166
 R7
 R8
 r1
 !s85 0
 31
+R14
+R15
+R16
+!i113 0
+R9
+R5
+vsynchronizer
+R10
+!i10b 1
+!s100 mhai6CAf@;[oI<JN>U`jN3
+I4L=UXXMFOnMPU2W`ocPZG0
+R1
 R11
 R12
 R13
+!i122 36
+L0 4 18
+R7
+R8
+r1
+!s85 0
+31
+R14
+R15
+R16
 !i113 0
 R9
 R5
