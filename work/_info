@@ -1,0 +1,33 @@
+m255
+K4
+z2
+!s11f vlog 2021.1 2021.01, Jan 19 2021
+13
+!s112 1.1
+!i10d 8192
+!i10e 25
+!i10f 100
+cModel Technology
+Z0 dC:/Users/johns/Desktop/PWM
+vpwm_time
+!s110 1753688264
+!i10b 1
+!s100 6W4@MRF_WAjaPNM?kNRhW3
+IIb;Ale>6jQT9ZY:Y1^PMC1
+R0
+w1753688262
+8pwm.v
+Fpwm.v
+!i122 1
+L0 1 88
+VDg1SIo80bB@j0V0VzS_@n1
+OL;L;2021.1;73
+r1
+!s85 0
+31
+!s108 1753688264.000000
+!s107 pwm.v|
+!s90 pwm.v|
+!i113 0
+o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+tCvgOpt 0
