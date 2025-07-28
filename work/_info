@@ -9,6 +9,13 @@ R0
 R0
 R0
 R0
+R0
+R0
+R0
+R0
+R0
+R0
+R0
 !s11f MIXED_VERSIONS
 13
 !s112 1.1
@@ -18,15 +25,26 @@ R0
 cModel Technology
 Z1 dC:/Users/johns/Desktop/PWM
 T_opt
-!s110 1753703032
-VS]fj8Na5l3NhhTBK`E2172
-04 12 4 work pwm_timer_tb fast 0
-=13-c475ab072dad-68876277-305-327c
-!s124 OEM100
-o-quiet -auto_acc_if_foreign -work work +acc
-Z2 tCvgOpt 0
+!s110 1753706646
+Vn6T2;V3zTGz]^<C<LY2Pg2
+Z2 04 12 4 work pwm_timer_tb fast 0
+=21-c475ab072dad-68877095-39e-327c
+Z3 !s124 OEM100
+Z4 o-quiet -auto_acc_if_foreign -work work +acc
+Z5 tCvgOpt 0
 n@_opt
-OL;O;2021.1;73
+Z6 OL;O;2021.1;73
+T_opt1
+!s110 1753705263
+V8b7:KXg2@Q1^kX?c>az<<0
+R2
+=1-c475ab072dad-68876b2f-2ab-4668
+R3
+R4
+R5
+n@_opt1
+R6
+R1
 vpwm_time
 !s110 1753697460
 !i10b 1
@@ -38,8 +56,8 @@ w1753697456
 Fpwm.v
 !i122 2
 L0 1 187
-Z3 VDg1SIo80bB@j0V0VzS_@n1
-Z4 OL;L;2021.1;73
+Z7 VDg1SIo80bB@j0V0VzS_@n1
+Z8 OL;L;2021.1;73
 r1
 !s85 0
 31
@@ -47,49 +65,49 @@ r1
 !s107 pwm.v|
 !s90 pwm.v|
 !i113 0
-Z5 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
-R2
+Z9 o-L mtiAvm -L mtiRnm -L mtiOvm -L mtiUvm -L mtiUPF -L infact
+R5
 vpwm_timer
-Z6 !s110 1753703022
+Z10 !s110 1753706641
 !i10b 1
-!s100 FeofIk>VXBUXMEEC0[k1k3
-Ib?bP1A_J2<G?Q2IF`h6kG1
+!s100 geH_JInQCBBiEGRaLi;Pc0
+I=3Z@0_21A=NYkWeAfBU5l3
 R1
-w1753703003
+w1753706626
 8pwm_timer.v
 Fpwm_timer.v
-!i122 12
-L0 1 198
-R3
-R4
-r1
-!s85 0
-31
-Z7 !s108 1753703022.000000
-Z8 !s107 pwm_timer.v|Test_bench.v|
-Z9 !s90 -reportprogress|300|Test_bench.v|pwm_timer.v|
-!i113 0
-R5
-R2
-vpwm_timer_tb
-R6
-!i10b 1
-!s100 07U7_S_GKK71S`_M@A?_60
-Im8h3lKj>4fIjU8:K_;XCW0
-R1
-w1753702255
-8Test_bench.v
-FTest_bench.v
-!i122 12
-L0 1 160
-R3
-R4
-r1
-!s85 0
-31
+!i122 21
+L0 1 204
 R7
 R8
-R9
+r1
+!s85 0
+31
+Z11 !s108 1753706641.000000
+Z12 !s107 pwm_timer.v|Test_bench.v|
+Z13 !s90 -reportprogress|300|Test_bench.v|pwm_timer.v|
 !i113 0
+R9
 R5
-R2
+vpwm_timer_tb
+R10
+!i10b 1
+!s100 ggMP5]Tz=IAWddAB@oOR]1
+I5G0[`8D5>AY2M>?>0B]df1
+R1
+w1753705537
+8Test_bench.v
+FTest_bench.v
+!i122 21
+L0 1 166
+R7
+R8
+r1
+!s85 0
+31
+R11
+R12
+R13
+!i113 0
+R9
+R5

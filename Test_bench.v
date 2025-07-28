@@ -147,10 +147,16 @@ module pwm_timer_tb;
 
         // Observe PWM with external DC
         $display("Observing PWM output with external duty cycle...");
-        repeat (10) @(negedge i_clk);
-
-        $display("Simulation finished.");
+        repeat (100) @(negedge i_clk);
+         @(negedge i_clk);
+        i_wb_cyc  = 1;
+        i_wb_stb  = 1;
+        i_wb_we   = 1;
+        i_wb_adr  = 4'h0;
+        i_wb_data = 16'h0054; // ext_dc_sel=1, mode_sel=0, counter_en=1, pwm_out_en=1
+        repeat (100) @(negedge i_clk);
         $stop;
+        $display("Simulation finished.");
     end
     initial begin
     $monitor("time=%0t clk=%b rst=%b ack=%b pwm=%b wb_data_out=0x%04h i_DC=%0d i_DC_valid=%b ",

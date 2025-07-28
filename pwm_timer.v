@@ -1,3 +1,26 @@
+//=========================================================================================
+// Two flip-flop synchronizer for clock domain crossing
+//================================================================================
+module synchronizer (
+    input  wire clk,
+    input  wire rst,
+    input  wire async_in,
+    output reg  sync_out
+);
+    reg ff1;
+    
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            ff1 <= 1'b0;
+            sync_out <= 1'b0;
+        end else begin
+            ff1 <= async_in;
+            sync_out <= ff1;
+        end
+    end
+endmodule
+//================================================================================
+
 module pwm_timer
 (   input  wire        i_clk,
     input  wire        i_rst,//active high
@@ -46,7 +69,8 @@ module pwm_timer
     reg error_dc_too_big=0;
     reg error_div_inavlid=0;
     //internal control signals
-
+    reg prv_mode_sel = 1;
+    reg set_irq_flag =0;
    //Control signals_assignment_logic
     always @(*) begin
     clk_sel      = ctrl_reg[0];
@@ -94,7 +118,7 @@ module pwm_timer
         end else begin
             o_wb_ack <= 1'b0; 
         end  
-    if(main_counter>=used_dc && mode_sel==0) begin
+    if(set_irq_flag) begin
       ctrl_reg[5]<=1;   
     end
     else begin
@@ -154,10 +178,11 @@ end
        //ctrl_reg[5] <=0; //clear interrupt flag 
        counter_rst<=0;
        error_dc_too_big<=0;
-      
+        set_irq_flag <=0;
     end
     else begin
       counter_rst<=ctrl_reg[7]; 
+      prv_mode_sel<= mode_sel; //store previous mode_sel
       if(mode_sel)begin//pwm mode
         if(counter_en && pwm_out_en)begin
             
@@ -178,14 +203,18 @@ end
          o_pwm<=o_pwm; 
       end       
       end else begin
-          
-            if(period_reg<used_dc)  begin
+             if(prv_mode_sel && !mode_sel) begin // mode changed from pwm to timer
+                o_pwm <= 0;
+                counter_rst <= 1; // reset counter when switching from PWM to timer
+             end
+            else if(period_reg<used_dc)  begin
                 o_pwm<=1;
                 error_dc_too_big<=1; 
             end    
             else if (main_counter >= period_reg) begin
                 o_pwm <= 1'b1;
                 counter_rst<=1; //reset counter
+                set_irq_flag <= 1; // set interrupt flag
                 //set interrupt bit and reset bits in their always block same condition
             end else begin
                 o_pwm <= 1'b0;
