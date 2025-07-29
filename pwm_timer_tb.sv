@@ -1,4 +1,4 @@
-module multi_pwm_timer_tb;
+module pwm_timer_tb;
     parameter NUM_CHANNELS = 4;
     
     reg         i_clk = 0;
@@ -30,7 +30,7 @@ module multi_pwm_timer_tb;
     end
 
     // DUT instantiation
-    multi_pwm_timer #(.NUM_CHANNELS(NUM_CHANNELS)) uut (
+    pwm_timer #(.NUM_CHANNELS(NUM_CHANNELS)) uut (
         .i_clk(i_clk),
         .i_rst(i_rst),
         .i_wb_cyc(i_wb_cyc),
@@ -118,38 +118,58 @@ module multi_pwm_timer_tb;
 
         $display("=== Configuring Channel 0 (Fast PWM - Divisor=1) ===");
         wb_write(channel_addr(3'd0, 3'b000), 8'h00);      // Reset control first
-        wb_write(channel_addr(3'd0, 3'b001), 16'd1);      // Divisor = 1 (fastest)
-        wb_write(channel_addr(3'd0, 3'b010), 16'd20);     // Period = 20
-        wb_write(channel_addr(3'd0, 3'b011), 16'd10);     // DC = 10 (50% duty)
-        wb_write(channel_addr(3'd0, 3'b000), 8'h54);      // PWM mode, enable, output enable
+        wb_write(channel_addr(3'd0, 3'b001), 16'd0);      // Divisor = 1 (fastest)
+        wb_write(channel_addr(3'd0, 3'b010), 16'd100);     // Period = 20
+        wb_write(channel_addr(3'd0, 3'b011), 16'd50);     // DC = 10 (50% duty)
+        wb_write(channel_addr(3'd0, 3'b000), 8'h54);      
         $display("Channel 0: Divisor=1, Period=20, DC=10, PWM mode enabled");
 
         $display("=== Configuring Channel 1 (Medium PWM - Divisor=2) ===");
         wb_write(channel_addr(3'd1, 3'b000), 8'h00);      // Reset control first
         wb_write(channel_addr(3'd1, 3'b001), 16'd0);      // Divisor = 2 (half speed)
-        wb_write(channel_addr(3'd1, 3'b010), 16'd15);     // Period = 15
-        wb_write(channel_addr(3'd1, 3'b011), 16'd111);      // DC = 5 (33% duty)
+        wb_write(channel_addr(3'd1, 3'b010), 16'd100);     // Period = 15
+        wb_write(channel_addr(3'd1, 3'b011), 16'd125);      // DC = 5 (33% duty)
         wb_write(channel_addr(3'd1, 3'b000), 8'h16);      // PWM mode, enable, output enable
         $display("Channel 1: Divisor=2, Period=15, DC=5, PWM mode enabled");
 
         $display("=== Configuring Channel 2 (Slow PWM - Divisor=4) ===");
         wb_write(channel_addr(3'd2, 3'b000), 8'h00);      // Reset control first
-        wb_write(channel_addr(3'd2, 3'b001), 16'd4);      // Divisor = 4 (quarter speed)
+        wb_write(channel_addr(3'd2, 3'b001), 16'd2);      // Divisor = 4 (quarter speed)
         wb_write(channel_addr(3'd2, 3'b010), 16'd12);     // Period = 12
-        wb_write(channel_addr(3'd2, 3'b011), 16'd8);      // DC = 8 (67% duty)
+        wb_write(channel_addr(3'd2, 3'b011), 16'd118);      // DC = 8 (67% duty)
         wb_write(channel_addr(3'd2, 3'b000), 8'h16);      // PWM mode, enable, output enable
         $display("Channel 2: Divisor=4, Period=12, DC=8, PWM mode enabled");
 
         $display("=== Configuring Channel 3 (Very Slow PWM - Divisor=8) ===");
         wb_write(channel_addr(3'd3, 3'b000), 8'h00);      // Reset control first
-        wb_write(channel_addr(3'd3, 3'b001), 16'd8);      // Divisor = 8 (eighth speed)
+        wb_write(channel_addr(3'd3, 3'b001), 16'd00);      // Divisor = 8 (eighth speed)
         wb_write(channel_addr(3'd3, 3'b010), 16'd10);     // Period = 10
         wb_write(channel_addr(3'd3, 3'b011), 16'd3);      // DC = 3 (30% duty)
         wb_write(channel_addr(3'd3, 3'b000), 8'h16);      // PWM mode, enable, output enable
         $display("Channel 3: Divisor=8, Period=10, DC=3, PWM mode enabled");
+    
 
-        $display("=== Observing Multi-Channel PWM Output with Different Periods ===");
-        $display("Expected periods (in clock cycles after division): CH0=20, CH1=30, CH2=48, CH3=80");
+
+        // repeat (1000) @(negedge i_clk);
+        // wb_write(channel_addr(3'd0, 3'b000), 8'b00000001); // Reset control register
+        //   $stop();
+        // wb_write(channel_addr(3'd0, 3'b000), 8'b00000001);   
+        // repeat (1000) @(negedge i_clk);
+        // wb_write(channel_addr(3'd0, 3'b000), 8'b00000001); 
+   
+        // $display("=== Testing Dynamic Clock Changes ===");
+       
+        wb_write(channel_addr(3'd0, 3'b000), 16'h17);     // Change divisor to 17
+       
+        $display("Dynamically changed channel 0 clock to external");
+         repeat (1000) @(negedge i_clk);
+        
+
+        $display("=== Testing Dynamic Clock Changes ===");
+       
+        wb_write(channel_addr(3'd0, 3'b000), 16'h17);     // Change divisor to 17
+        $display("Dynamically changed channel 0 clock to external");
+        repeat (1000) @(negedge i_clk);
         
         // Let the PWM run for enough time to see multiple periods
         repeat (2000) @(negedge i_clk);
@@ -158,15 +178,13 @@ module multi_pwm_timer_tb;
         for(integer i = 0; i < NUM_CHANNELS; i = i + 1) begin
             wb_read(channel_addr(i, 3'b100), read_data);
             $display("Channel %0d counter value: %0d", i, read_data);
-            wb_read(channel_addr(i, 3'b101), read_data);
-            $display("Channel %0d error status: 0x%04h", i, read_data);
+            wb_read(channel_addr(i, 3'b010), read_data);
+            $display("Channel %0d period: %d", i, read_data);
+            $stop();
         end
 
-        $display("=== Testing Dynamic Divisor Changes ===");
-        // Change channel 0 to slower divisor
-        wb_write(channel_addr(3'd0, 3'b001), 16'd16);     // Change divisor to 16
-        $display("Changed Channel 0 divisor to 16 (much slower)");
-        repeat (1000) @(negedge i_clk);
+
+
 
         // Change channel 3 to faster divisor
         wb_write(channel_addr(3'd3, 3'b001), 16'd2);      // Change divisor to 2
@@ -196,6 +214,7 @@ module multi_pwm_timer_tb;
             $display("Timer interrupt detected on Channel 2, clearing...");
             wb_write(channel_addr(3'd2, 3'b000), 8'h0C & ~8'h20); // Clear interrupt
         end
+        $stop();
 
         $display("=== Final Extended Observation ===");
         repeat (1500) @(negedge i_clk);
