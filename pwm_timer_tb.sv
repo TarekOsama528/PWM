@@ -169,6 +169,7 @@ module pwm_timer_tb;
        
         wb_write(channel_addr(3'd0, 3'b000), 16'h17);     // Change divisor to 17
         $display("Dynamically changed channel 0 clock to external");
+        $stop();
         repeat (1000) @(negedge i_clk);
         
         // Let the PWM run for enough time to see multiple periods

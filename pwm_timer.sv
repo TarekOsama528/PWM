@@ -1,6 +1,4 @@
-//=========================================================================================
-// Two flip-flop synchronizer for clock domain crossing
-//=========================================================================================
+
 //=========================================================================================
 // Glitch free Clock Mux
 //=========================================================================================
@@ -11,24 +9,37 @@ module clock_mux (
     output wire out_clk
 );
     wire i_and1, i_and2;
-    wire o_and1, o_and2;
-    reg flop1_o, flop2_o;
+    reg o_and1, o_and2;
+    reg latch1_en, latch2_en;
+    reg flop1_o,flop12_o, flop2_o,flop22_o;
 
-    assign i_and1 = ~select & ~flop2_o;
-    assign i_and2 = select & ~flop1_o;
-    assign o_and1 = clk1 & flop1_o;
-    assign o_and2 = clk2 & flop2_o;
+    assign i_and1 = ~select & ~flop22_o;
+    assign i_and2 = select & ~flop12_o;
+    //assign o_and1 = clk1 & flop12_o;
+    //assign o_and2 = clk2 & flop22_o;
+       assign o_and1 = clk1 & latch1_en;
+       assign o_and2 = clk2 & latch2_en;
     assign out_clk = o_and1 | o_and2;
+
+    always @(*) begin
+   if (!clk1) begin 
+       latch1_en <= flop12_o;
+    end
+   if (!clk2) begin 
+       latch2_en <= flop22_o;
+    end
+    end  
 
     always @(posedge clk1) begin
         flop1_o <= i_and1;
+        flop12_o <= flop1_o;
     end
 
     always @(posedge clk2) begin
         flop2_o <= i_and2;
+        flop22_o <= flop2_o;
     end
 endmodule
-//=========================================================================================
 //=========================================================================================
 
 module pwm_timer #(
