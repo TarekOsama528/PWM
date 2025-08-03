@@ -15,19 +15,17 @@ module clock_mux (
 
     assign i_and1 = ~select & ~flop22_o;
     assign i_and2 = select & ~flop12_o;
-    //assign o_and1 = clk1 & flop12_o;
-    //assign o_and2 = clk2 & flop22_o;
-       assign o_and1 = clk1 & latch1_en;
-       assign o_and2 = clk2 & latch2_en;
+    assign o_and1 = clk1 & latch1_en;
+    assign o_and2 = clk2 & latch2_en;
     assign out_clk = o_and1 | o_and2;
 
     always @(*) begin
-   if (!clk1) begin 
-       latch1_en <= flop12_o;
-    end
-   if (!clk2) begin 
-       latch2_en <= flop22_o;
-    end
+        if (!clk1) begin 
+            latch1_en <= flop12_o;
+        end
+        if (!clk2) begin 
+            latch2_en <= flop22_o;
+        end
     end  
 
     always @(posedge clk1) begin
@@ -195,21 +193,19 @@ module pwm_timer #(
                             o_pwm[i] <= 1'b0;
                         end
                     end else begin // Timer mode
-                        if(period_reg[i] >= used_dc[i])begin
-                            o_pwm[i] <=irq_to_wb_sync[i]; // Timer mode, output low
-                            error_dc_too_big[i] <= 1'b0; // No error in timer mode
-                        end
-                        else if(period_reg[i] < used_dc[i]) begin
-                            o_pwm[i] <= 1'b1; // Error case: DC > Period
-                            error_dc_too_big[i] <= 1'b1;
-                        end 
+                      
                         if(main_counter[i] >= period_reg[i]) begin
                              
                              ctrl_reg[i][5] <=1; // Set interrupt flag
                              ctrl_reg[i][7] <= 1'b1; // Set reset 
                         end
-                        else
-                        ctrl_reg[i][5] <=((i_wb_data[5]==0)&&(channel_sel==i)&&(reg_sel==3'b000))? 1'b0:ctrl_reg[i][5]; // Set interrupt flag
+                       else  begin
+                        
+                       o_pwm[i] <=irq_to_wb_sync[i]; // Timer mode, output low
+                       ctrl_reg[i][5] <=((i_wb_data[5]==0)&&(channel_sel==i)&&(reg_sel==3'b000))? 1'b0  :ctrl_reg[i][5]; // Set interrupt flag
+                       end
+                        
+                
 
                     end
                 end
@@ -241,6 +237,7 @@ module pwm_timer #(
                             3'b000: begin // Control register
                                 ctrl_reg[channel_sel[1:0]] <= i_wb_data[7:0];
                                 // Clear interrupt flag when bit 5 is written with 0
+                              
                              
                             end
                             3'b001: divisor_reg[channel_sel[1:0]] <= i_wb_data;  // Divisor register
@@ -269,11 +266,11 @@ module pwm_timer #(
             end
             
             // Handle interrupt flags from PWM domain
-            for(j = 0; j < NUM_CHANNELS; j = j + 1) begin
-                if(irq_to_wb_sync[j]) begin
-                    ctrl_reg[j][5] <= 1'b1;
-                end
-            end
+            // for(j = 0; j < NUM_CHANNELS; j = j + 1) begin
+            //     if(irq_to_wb_sync[j]) begin
+            //         ctrl_reg[j][5] <= 1'b1;
+            //     end
+            // end
         end
     end
 
