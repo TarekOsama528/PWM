@@ -6,6 +6,7 @@ module clock_mux (
     input  wire clk1,
     input wire clk2,
     input  wire select,
+    input wire rst,
     output wire out_clk
 );
     wire i_and1, i_and2;
@@ -21,21 +22,33 @@ module clock_mux (
 
     always @(*) begin
         if (!clk1) begin 
-            latch1_en <= flop12_o;
+            latch1_en = flop12_o;
         end
         if (!clk2) begin 
-            latch2_en <= flop22_o;
+            latch2_en = flop22_o;
         end
     end  
 
-    always @(posedge clk1) begin
+    always @(posedge clk1 or posedge rst) begin
+        if(rst)begin
+        flop1_o <= 0;
+        flop12_o <= 0;    
+        end
+        else begin
         flop1_o <= i_and1;
         flop12_o <= flop1_o;
+        end
     end
 
-    always @(posedge clk2) begin
+    always @(posedge clk2 or posedge rst) begin
+        if(rst) begin
+        flop2_o <= 0;
+        flop22_o <= 0;    
+        end
+        else begin
         flop2_o <= i_and2;
         flop22_o <= flop2_o;
+        end
     end
 endmodule
 //=========================================================================================
