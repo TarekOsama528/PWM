@@ -20,7 +20,7 @@ module clock_mux (
     assign o_and2 = clk2 & latch2_en;
     assign out_clk = o_and1 | o_and2;
 
-    always @(*) begin
+    always_latch begin
         if (!clk1) begin 
             latch1_en = flop12_o;
         end
@@ -87,7 +87,7 @@ module pwm_timer #(
     reg divided_clk_pulse [NUM_CHANNELS-1:0];
     
     // Per-channel synchronized control signals
-    wire clk_sel_sync [NUM_CHANNELS-1:0];
+    
     wire mode_sel_sync [NUM_CHANNELS-1:0];
     wire counter_en_sync [NUM_CHANNELS-1:0];
     wire continuous_sync [NUM_CHANNELS-1:0];
@@ -120,13 +120,8 @@ module pwm_timer #(
             
             assign used_dc[i] = (ext_dc_sel_sync[i] && i_DC_valid[i]) ? i_DC[i] : dc_reg[i];
             
-               clock_mux clk_mux_inst (.clk1(i_clk),.clk2(i_extclk),.select(ctrl_reg[i][0]),.out_clk(actual_clk[i]));
-            // synchronizer sync_mode_sel   (.clk(actual_clk[i]), .rst(i_rst), .async_in(ctrl_reg[i][1]), .sync_out(mode_sel_sync[i]));
-            // synchronizer sync_counter_en (.clk(actual_clk[i]), .rst(i_rst), .async_in(ctrl_reg[i][2]), .sync_out(counter_en_sync[i]));
-            // synchronizer sync_continuous (.clk(actual_clk[i]), .rst(i_rst), .async_in(ctrl_reg[i][3]), .sync_out(continuous_sync[i]));
-            // synchronizer sync_pwm_out_en (.clk(actual_clk[i]), .rst(i_rst), .async_in(ctrl_reg[i][4]), .sync_out(pwm_out_en_sync[i]));
-            // synchronizer sync_ext_dc_sel (.clk(actual_clk[i]), .rst(i_rst), .async_in(ctrl_reg[i][6]), .sync_out(ext_dc_sel_sync[i]));
-            // synchronizer sync_counter_rst(.clk(actual_clk[i]), .rst(i_rst), .async_in(ctrl_reg[i][7]), .sync_out(counter_rst_sync[i]));
+               clock_mux clk_mux_inst (.clk1(i_clk),.clk2(i_extclk),.select(ctrl_reg[i][0]),.rst(i_rst),.out_clk(actual_clk[i]));
+
             assign mode_sel_sync[i]      = ctrl_reg[i][1];
             assign counter_en_sync[i]    = ctrl_reg[i][2];
             assign continuous_sync[i]    = ctrl_reg[i][3];
@@ -135,12 +130,7 @@ module pwm_timer #(
             assign counter_rst_sync[i]   = ctrl_reg[i][7];
 
             assign irq_to_wb_sync[i]= ctrl_reg[i][5]; // Interrupt flag to Wishbone
-            
-            // Interrupt synchronizer
-        
-            
 
-            
             // Per-channel clock divider
             always @(posedge actual_clk[i] or posedge i_rst) begin
                 if(i_rst) begin
@@ -278,12 +268,7 @@ module pwm_timer #(
                 o_wb_ack <= 1'b0;
             end
             
-            // Handle interrupt flags from PWM domain
-            // for(j = 0; j < NUM_CHANNELS; j = j + 1) begin
-            //     if(irq_to_wb_sync[j]) begin
-            //         ctrl_reg[j][5] <= 1'b1;
-            //     end
-            // end
+
         end
     end
 
